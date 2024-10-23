@@ -24,10 +24,14 @@ server.get('/newgame', (req, res) => {
     res.send({ sessionID: newID })
 })
 server.get('/gamestate', (req, res) => {
+ //   const sessionID = req.query.sessionID
+ //   const gamestate = activeSessions[sessionID]
+ //   if(!gamestate){
+ //       return res.status(404).send({error: "Invalid session ID"})
+ //   }
+ //   res.status(200).send(gamestate)
 
 
-
-    
 })
 
 

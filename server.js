@@ -3,8 +3,6 @@ const uuid = require("uuid")
 const server = express();
 server.use(express.json())
 server.use(express.static('public'))
-
-
 //All your code goes here
 let activeSessions={}
 
@@ -24,16 +22,23 @@ server.get('/newgame', (req, res) => {
     res.send({ sessionID: newID })
 })
 server.get('/gamestate', (req, res) => {
-   const sessionID = req.query.sessionID
-   const gamestate = activeSessions[sessionID]
-   if(!gamestate){
-       return res.status(404).send({error: "Invalid session ID"})
-   }
-   res.status(200).send(gamestate)
-
+    let ID = req.query.sessionID
+    if(!ID){
+        res.status(400)
+        res.send({error: "Invalid ID"})
+    }else{
+        if(activeSessions[ID]){
+            res.status(200)
+            res.send({gamestate: activeSessions[ID]})
+        }else{
+            res.status(404)
+            res.send({error: "game does not exist"})
+        }
+    }
+ })
+server.post('/guess', (req, res) => {
 
 })
-
 
 
 //Do not remove this line. This allows the test suite to start

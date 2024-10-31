@@ -7,6 +7,7 @@ server.use(express.static('public'))
 let activeSessions={}
 
 server.get('/newgame', (req, res) => {
+    let wordToGuess = req.query.answer || "spike"
     let newID = uuid.v4()
     let newgame = {
         wordToGuess: "spike",
@@ -18,8 +19,7 @@ server.get('/newgame', (req, res) => {
         gameOver: false
     }
     activeSessions[newID] = newgame
-    res.status(201)
-    res.send({ sessionID: newID })
+    res.status(201).send({ sessionID: newID })
 })
 server.get('/gamestate', (req, res) => {
     let ID = req.query.sessionID
@@ -28,17 +28,60 @@ server.get('/gamestate', (req, res) => {
         res.send({error: "Invalid ID"})
     }else{
         if(activeSessions[ID]){
-            res.status(200)
-            res.send({gamestate: activeSessions[ID]})
+            res.status(200).send({gameState: activeSessions[ID]})
         }else{
-            res.status(404)
-            res.send({error: "game does not exist"})
+            res.status(404).send({error: "game does not exist"})
         }
     }
  })
 server.post('/guess', (req, res) => {
+    let ID = req.body.sessionID
+    let guess = req.body.guess
+    if(!ID){
+        return res.status(400).send({error: "Session ID is required"})
+    }
+    if(!activeSessions[ID]){
+        return res.status(404).send({error: "Game session not found  "})
+    }
+    if(!guess){
+        return res.status(400).send({error: "Guess is required"})
+    }
+    if (guess.length !== 5){
+        return res.status(400).send({error: "Guess must be 5 letters long"})
+    }
+    if (![...guess].every(letter => letter.toLowerCase() >= 'a' && letter.toLowerCase() <= 'z')) {
+        return res.status(400).send({ error: "Guess can only contain alphabet letters" });
+    }
+    let game = activeSessions[ID]
+    if(game.gameOver){
+        return res.status(400).send({error: "Game is over"})
+    }
+    let rightLetters = []
+    let closeLetters = []
+    let wrongLetters = []
+    for (let i = 0; i < array.length; i++) {
+        let guessedLetter = guess[i]
+        if(game.wordToGuess[i] === guessedLetter){
+            rightLetters.push(guessedLetter)
+        }else if(game.wordToGuess.includes(guessedLetter)){
+            closeLetters.push(guessedLetter)
+        }else{
+            wrongLetters.push(guessedLetter)
+        }
+    }
+    
+})
+server.delete('/reset', (req,res) => {
+    let ID = req.body.sessionID
+    if(!ID){
+        res.status(400).send({error: "No session ID"})
+    }else if(!ID != !activeSessions){
+        res.status(404).send({error: "Session ID does not match with the active session"})
+    }
+
 
 })
+
 
 
 //Do not remove this line. This allows the test suite to start

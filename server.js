@@ -70,16 +70,27 @@ server.post('/guess', (req, res) => {
         }
     }
     
+        
+    
 })
 server.delete('/reset', (req,res) => {
-    let ID = req.body.sessionID
+    let ID = req.query.sessionID
     if(!ID){
-        res.status(400).send({error: "No session ID"})
-    }else if(!ID != !activeSessions){
-        res.status(404).send({error: "Session ID does not match with the active session"})
+        return res.status(400).send({error: "No session ID"})
     }
-
-
+    if(!activeSessions[ID]){
+        return res.status(404).send({error: "Session ID does not match with the active session"})
+    }
+    activeSessions[ID] = {
+        wordToGuess: undefined,
+        guesses: [],
+        wrongLetters: [],
+        closeLetters: [],
+        rightLetters: [],
+        remainingGuesses: 6,
+        gameOver: false
+    }
+    res.status(200).send({gameState: activeSessions[ID]})
 })
 
 
